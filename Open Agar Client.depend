@@ -1,0 +1,46 @@
+# depslib dependency file v1.0
+1433051402 source:c:\tdm-gcc-64\open agar client\main.cpp
+	<algorithm>
+	<chrono>
+	<iostream>
+	<iomanip>
+	<memory>
+	<SFML/Graphics.hpp>
+	<string>
+	<thread>
+	<vector>
+	<cstdio>
+	<cstdlib>
+	"easywsclient/easywsclient.hpp"
+	"easywsclient/easywsclient.cpp"
+
+1432094775 c:\tdm-gcc-64\open agar client\easywsclient\easywsclient.hpp
+	<string>
+	<vector>
+
+1432856445 c:\tdm-gcc-64\open agar client\easywsclient\easywsclient.cpp
+	<fcntl.h>
+	<WinSock2.h>
+	<WS2tcpip.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/types.h>
+	<io.h>
+	<stdint.h>
+	<fcntl.h>
+	<netdb.h>
+	<netinet/tcp.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<sys/types.h>
+	<unistd.h>
+	<stdint.h>
+	<errno.h>
+	<vector>
+	<string>
+	"easywsclient.hpp"
+
