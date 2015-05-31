@@ -16,6 +16,7 @@
 
 bool closingApp = false;
 bool darkTheme = false;
+bool ejectMass = false;
 bool sendName = false;
 bool sendReset = false;
 bool spectate = false;
@@ -53,9 +54,9 @@ struct cameraStruct
 struct nodeDataStruct
 {
 	uint32_t ID = 0;
-	float X = 0.f;
-	float Y = 0.f;
-	float Radius = 0;
+	uint16_t X = 0;
+	uint16_t Y = 0;
+	uint16_t Radius = 0;
 	uint8_t Red = 0;
 	uint8_t Green = 0;
 	uint8_t Blue = 0;
@@ -375,28 +376,28 @@ void updateCamera()
 		return;
 	}
 
-	cameraData.CenterX = nodeData[clientIndex].X;
-	cameraData.CenterY = nodeData[clientIndex].Y;
+	cameraData.CenterX = (double)nodeData[clientIndex].X;
+	cameraData.CenterY = (double)nodeData[clientIndex].Y;
 
-	totalRadius += nodeData[clientIndex].Radius;
+	totalRadius += (double)nodeData[clientIndex].Radius;
 
 	range = totalRadius * 25.d;
 
 	if (windowWidth > windowHeight)
 	{
-		cameraData.Left = nodeData[clientIndex].X - range;
-		cameraData.Right = nodeData[clientIndex].X + range;
+		cameraData.Left = (double)nodeData[clientIndex].X - range;
+		cameraData.Right = (double)nodeData[clientIndex].X + range;
 
-		cameraData.Top = nodeData[clientIndex].Y - (range * ((double)windowHeight / (double)windowWidth));
-		cameraData.Bottom = nodeData[clientIndex].Y + (range * ((double)windowHeight / (double)windowWidth));
+		cameraData.Top = (double)nodeData[clientIndex].Y - (range * ((double)windowHeight / (double)windowWidth));
+		cameraData.Bottom = (double)nodeData[clientIndex].Y + (range * ((double)windowHeight / (double)windowWidth));
 	}
 	else
 	{
-		cameraData.Top = nodeData[clientIndex].Y - range;
-		cameraData.Bottom = nodeData[clientIndex].Y + range;
+		cameraData.Top = (double)nodeData[clientIndex].Y - range;
+		cameraData.Bottom = (double)nodeData[clientIndex].Y + range;
 
-		cameraData.Left = nodeData[clientIndex].X - (range * (windowWidth / windowHeight));
-		cameraData.Right = nodeData[clientIndex].X + (range * (windowWidth / windowHeight));
+		cameraData.Left = (double)nodeData[clientIndex].X - (range * (windowWidth / windowHeight));
+		cameraData.Right = (double)nodeData[clientIndex].X + (range * (windowWidth / windowHeight));
 	}
 
 	cameraData.Height = cameraData.Bottom - cameraData.Top;
@@ -485,6 +486,11 @@ void OAClient()
 
 							break;
 
+						case sf::Keyboard::W:
+							ejectMass = true;
+
+							break;
+
 						case sf::Keyboard::Up:
 							//
 
@@ -519,8 +525,8 @@ void OAClient()
 
 		for (unsigned int nodeIter = 0; nodeIter < nodeData.size(); nodeIter++) // Then draw players and food
 		{
-			circle.setPosition(nodeData[nodeIter].X - nodeData[nodeIter].Radius, nodeData[nodeIter].Y - nodeData[nodeIter].Radius);
-			circle.setRadius(nodeData[nodeIter].Radius);
+			circle.setPosition((float)nodeData[nodeIter].X - (float)nodeData[nodeIter].Radius, (float)nodeData[nodeIter].Y - (float)nodeData[nodeIter].Radius);
+			circle.setRadius((float)nodeData[nodeIter].Radius);
 
 			circleColor.r = nodeData[nodeIter].Red;
 			circleColor.g = nodeData[nodeIter].Green;
@@ -534,7 +540,7 @@ void OAClient()
 			{
 				text.setCharacterSize(10);
 				text.setString(nodeData[nodeIter].Name);
-				text.setPosition(nodeData[nodeIter].X - text.getLocalBounds().width / 2.f, nodeData[nodeIter].Y);
+				text.setPosition((float)nodeData[nodeIter].X - text.getLocalBounds().width / 2.f, (float)nodeData[nodeIter].Y);
 
 				window.draw(text);
 			}
@@ -542,8 +548,8 @@ void OAClient()
 
 		for (unsigned int virusIter = 0; virusIter < virusData.size(); virusIter++) // Draw Viri
 		{
-			circle.setPosition(virusData[virusIter].X - virusData[virusIter].Radius, virusData[virusIter].Y - virusData[virusIter].Radius);
-			circle.setRadius(virusData[virusIter].Radius);
+			circle.setPosition((float)virusData[virusIter].X - (float)virusData[virusIter].Radius, (float)virusData[virusIter].Y - (float)virusData[virusIter].Radius);
+			circle.setRadius((float)virusData[virusIter].Radius);
 
 			circleColor.r = virusData[virusIter].Red;
 			circleColor.g = virusData[virusIter].Green;
@@ -647,9 +653,10 @@ void WSClient()
 					break;
 			}
 
-			if (updateMouse)
+			if (ejectMass)
 			{
-				ws->sendBinary(playerMouseMessage);
+				ws->sendBinary(std::vector<uint8_t>({0x15}));
+				std::cout << "Ejected mass\n";
 			}
 
 			if (spectate)
@@ -673,6 +680,11 @@ void WSClient()
 				std::cout << "Sent reset\n";
 				sendReset = false;
 			}
+
+			if (updateMouse)
+			{
+				ws->sendBinary(playerMouseMessage);
+			}
 		}
 
 		if (closingApp)
@@ -692,9 +704,15 @@ void WSClient()
 
 int main(int argc, char* argv[])
 {
-	if (argc = 1)
+	std::cout << argc << std::endl;
+	if (argc == 2)
 	{
 		connectionString = argv[1];
+	}
+	else
+	{
+		std::cout << "Please launch in the form \"Open Agar Client.exe\" ws://server:port\n";
+		return 1;
 	}
 
 	std::thread WSClientThread(WSClient);
